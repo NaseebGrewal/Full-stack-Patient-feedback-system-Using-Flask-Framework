@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Website{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Add Bootstrap CSS link here -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+ <style>
+
+        body {
+          background-color: blue;
+          background-image: url(https://rendia.com/wp-content/uploads/2014/10/Simple-Steps-for-Improving-Patient-Satisfaction.jpg);
+          background-size: cover;
+          /*background-image: url(https://media.istockphoto.com/id/1314567245/vector/a-satisfied-patient-leaves-a-good-review-to-the-doctor-using-the-mobile-application-hand.jpg?s=612x612&w=0&k=20&c=8kPV4TzC2_dOwW6asZ0SQH448T5SZyndciZH_bKBcAk=);
+        */}
+  
+  
+      </style> 
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="{{ url_for('home') }}">My Website</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('feedback') }}">Feedback</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  <div class="container-fluid">
+    <div class="row justify-content-center mt-5">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body text-center">
+            <h1 class="card-title mb-4">Thank you for your feedback!</h1>
+            <p class="card-text mb-4">We appreciate your input and will use it to improve our services.</p>
+            <a href="{{ url_for('feedback') }}" class="btn btn-primary btn-lg">Submit your feedback</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

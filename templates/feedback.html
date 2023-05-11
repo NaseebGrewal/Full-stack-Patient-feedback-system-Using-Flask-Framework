@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Feedback Form</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: rgb(154, 183, 169);
+			/*background-image: url(https://media.istockphoto.com/id/1356228571/photo/patient-satisfaction-survey-doctor-holds-joyful-and-sad-emoticons.jpg?s=612x612&w=0&k=20&c=jPBvAvYqWN22FFauOwEcUJo0Fh7gmRHxPU7G8WnWWzk=);
+			*/
+		     }
+		
+		h1, h2, legend {
+			text-align: center;
+			color: #333;
+		}
+		
+		form {
+			background-color: #fff;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+			max-width: 600px;
+			margin: 0 auto;
+		}
+		label {
+			display: block;
+			font-weight: bold;
+			margin-bottom: 5px;
+			color: #333;
+		}
+		input[type="text"],
+		input[type="number"],
+		input[type="email"],
+		input[type="date"] {
+			width: 100%;
+			padding: 10px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			font-size: 16px;
+			margin-bottom: 10px;
+		}
+		input[type="radio"] {
+			display: none;
+		}
+		input[type="radio"] + label {
+			display: inline-block;
+			margin-right: 10px;
+			padding: 5px 10px;
+			background-color: #ccc;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+		input[type="radio"]:checked + label {
+			background-color: #333;
+			color: #fff;
+		}
+		input[type="submit"] {
+			background-color: #333;
+			color: #fff;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 16px;
+			margin-top: 10px;
+		}
+		.new {
+			background-color: white;
+			margin-left: auto;
+			margin-right: auto;
+			width: 38.7%;
+		}
+	</style>
+</head>
+<body>
+
+	<h1>Feedback Form</h1>
+
+	<form method="POST" action="{{ url_for('feedback') }}">
+	  <section>
+	  <fieldset> 
+		<legend><h2>Personal information</h2></legend>
+		<label for="patient_id">Patient ID:</label>
+		<input type="text" id="patient_id" name="patient_id" required>
+		<br><br>
+		<label for="name">Name:</label>
+		<input type="text" id="name" name="name" required>
+		<br><br>
+		<label for="age">Age:</label>
+		<input type="number" id="age" name="age" required>
+		<br><br>
+		<label for="email">Email:</label>
+		<input type="email" id="email" name="email" placeholder="Email address" required>
+		<br><br>
+		<label for="date">Date:</label>
+		<input type="date" id="date" name="date" required>
+	  </fieldset></section>
+		<br><br>
+	  <section>
+	  <fieldset>
+		<legend><h2>Rating Questions</h2></legend>
+        <label for="overall_exp">How would you rate your overall experience at our hospital?</label>
+		<br>
+		<input type="radio" id="1" name="overall_exp" value="1" required>
+		<label for="1">1</label>
+		<input type="radio" id="2" name="overall_exp" value="2" required>
+		<label for="2">2</label>
+		<input type="radio" id="3" name="overall_exp" value="3" required>
+		<label for="3">3</label>
+		<input type="radio" id="4" name="overall_exp" value="4" required>
+		<label for="4">4</label>
+		<input type="radio" id="5" name="overall_exp" value="5" required>
+		<label for="5">5</label>
+        <br><br>
+		<label for="doc_care">How satisfied were you with the quality of care provided by your doctor(s)?</label>
+		<br>
+		<input type="radio" id="12" name="doc_care" value="1" required>
+		<label for="12">1</label>
+		<input type="radio" id="22" name="doc_care" value="2" required>
+		<label for="22">2</label>
+		<input type="radio" id="32" name="doc_care" value="3" required>
+		<label for="32">3</label>
+		<input type="radio" id="42" name="doc_care" value="4" required>
+		<label for="42">4</label>
+		<input type="radio" id="52" name="doc_care" value="5" required>
+		<label for="52">5</label>
+		<br><br>
+        <label for="doc_comm">How satisfied were you with the amount of time the doctor(s) spent with you?</label>
+		<br>
+		<input type="radio" id="13" name="doc_comm" value="1" required>
+		<label for="13">1</label>
+		<input type="radio" id="23" name="doc_comm" value="2" required>
+		<label for="23">2</label>
+		<input type="radio" id="33" name="doc_comm" value="3" required>
+		<label for="33">3</label>
+		<input type="radio" id="43" name="doc_comm" value="4" required>
+		<label for="43">4</label>
+		<input type="radio" id="53" name="doc_comm" value="5" required>
+		<label for="53">5</label>
+		<br><br>
+        <label for="nurse_care">How satisfied were you with the level of attention and care provided by the nursing staff?</label>
+		<br>
+		<input type="radio" id="14" name="nurse_care" value="1" required>
+		<label for="14">1</label>
+		<input type="radio" id="24" name="nurse_care" value="2" required>
+		<label for="24">2</label>
+		<input type="radio" id="34" name="nurse_care" value="3" required>
+		<label for="34">3</label>
+		<input type="radio" id="44" name="nurse_care" value="4" required>
+		<label for="44">4</label>
+		<input type="radio" id="54" name="nurse_care" value="5" required>
+		<label for="54">5</label>
+		<br><br>
+        <label for="food_quality">How satisfied were you with the quality and variety of food provided during your stay?</label>
+		<br>
+		<input type="radio" id="15" name="food_quality" value="1" required>
+		<label for="15">1</label>
+		<input type="radio" id="25" name="food_quality" value="2" required>
+		<label for="25">2</label>
+		<input type="radio" id="35" name="food_quality" value="3" required>
+		<label for="35">3</label>
+		<input type="radio" id="45" name="food_quality" value="4" required>
+		<label for="45">4</label>
+		<input type="radio" id="55" name="food_quality" value="5" required>
+		<label for="55">5</label>
+		<br><br>
+        <label for="accommodation">How comfortable were the accommodations during your stay?</label>
+		<br>
+		<input type="radio" id="16" name="accommodation" value="1" required>
+		<label for="16">1</label>
+		<input type="radio" id="26" name="accommodation" value="2" required>
+		<label for="26">2</label>
+		<input type="radio" id="36" name="accommodation" value="3" required>
+		<label for="36">3</label>
+		<input type="radio" id="46" name="accommodation" value="4" required>
+		<label for="46">4</label>
+		<input type="radio" id="56" name="accommodation" value="5" required>
+		<label for="56">5</label>
+		<br><br>
+        <label for="sanitization">How comfortable were the accommodations during your stay?</label>
+		<br>
+		<input type="radio" id="17" name="sanitization" value="1" required>
+		<label for="17">1</label>
+		<input type="radio" id="27" name="sanitization" value="2" required>
+		<label for="27">2</label>
+		<input type="radio" id="37" name="sanitization" value="3" required>
+		<label for="37">3</label>
+		<input type="radio" id="47" name="sanitization" value="4" required>
+		<label for="47">4</label>
+		<input type="radio" id="57" name="sanitization" value="5" required>
+		<label for="57">5</label>
+		<br><br>
+        <label for="safety">How well were you informed about the hospital's safety and infection control measures?</label>
+		<br>
+		<input type="radio" id="18" name="safety" value="1" required>
+		<label for="18">1</label>
+		<input type="radio" id="28" name="safety" value="2" required>
+		<label for="28">2</label>
+		<input type="radio" id="38" name="safety" value="3" required>
+		<label for="38">3</label>
+		<input type="radio" id="48" name="safety" value="4" required>
+		<label for="48">4</label>
+		<input type="radio" id="58" name="safety" value="5" required>
+		<label for="58">5</label>
+		<br><br>
+        <label for="staff_support">How satisfied were you with the level of attention and support provided by other hospital staff, such as physical therapists, social workers, or case managers?</label>
+		<br>
+		<input type="radio" id="19" name="staff_support" value="1" required>
+		<label for="19">1</label>
+		<input type="radio" id="29" name="staff_support" value="2" required>
+		<label for="29">2</label>
+		<input type="radio" id="39" name="staff_support" value="3" required>
+		<label for="39">3</label>
+		<input type="radio" id="49" name="staff_support" value="4" required>
+		<label for="49">4</label>
+		<input type="radio" id="59" name="staff_support" value="5" required>
+		<label for="59">5</label>
+	  </fieldset>
+	  </section>
+		<br><br>
+	  <section>
+	  <fieldset>	
+		<legend><h2>Yes/No Questions</h2></legend>
+        <label for="doc_involvement">Were your needs and concerns addressed promptly and effectively by the nursing staff?</label><br>
+        <input type="radio" id="yes1" name="doc_involvement" value="yes">
+        <label for="yes1">Yes</label>
+        <input type="radio" id="no1" name="doc_involvement" value="no">
+        <label for="no1">No</label>
+        <br><br>
+        <label for="nurse_promptness">Were you provided with clear and complete instructions for after-care?</label><br>
+        <input type="radio" id="yes2" name="nurse_promptness" value="yes">
+        <label for="yes2">Yes</label>
+        <input type="radio" id="no2" name="nurse_promptness" value="no">
+        <label for="no2">No</label>
+        <br><br>
+        <label for="cleanliness">Were the facilities clean and well-maintained?</label><br>
+        <input type="radio" id="yes3" name="cleanliness" value="yes">
+        <label for="yes3">Yes</label>
+        <input type="radio" id="no3" name="cleanliness" value="no">
+        <label for="no3">No</label>
+        <br><br>
+        <label for="timely_info">Did you receive timely and accurate information about your diagnosis and treatment?</label><br>
+        <input type="radio" id="yes4" name="timely_info" value="yes">
+        <label for="yes4">Yes</label>
+        <input type="radio" id="no4" name="timely_info" value="no">
+        <label for="no4">No</label>
+        <br><br>
+        <label for="med_info">Were your medications explained to you, including possible side effects?</label><br>
+        <input type="radio" id="yes5" name="med_info" value="yes">
+        <label for="yes5">Yes</label>
+        <input type="radio" id="no5" name="med_info" value="no">
+        <label for="no5">No</label>
+	  </fieldset>
+	  </section>
+        <br><br>
+	  <section>
+	  <fieldset>
+		<legend><h2>Final Comment</h2></legend>
+        <label for="other_comments">Is there anything else you would like to share about your experience at our hospital? (up to 200 words)</label>
+        <br>
+        <textarea id="feedback" name="other_comments" rows="5" cols="70" maxlength="200"></textarea>
+	  </fieldset>
+	  </section>
+        <br><br>
+		<input type="submit" value="Submit">
+	</form>
+	
+</body>
+</html>
