@@ -1,280 +1,313 @@
-import re
-from sqlite3 import connect
-from flask import Flask, render_template, request, redirect, url_for
-import csv
-import os
-from pymongo import MongoClient
-import redis
 import json
-from Backend_DB_Connection import insert_into_database
+import os
+import re
+
 import matplotlib
-matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
-from flask import session
+import redis
+from flask import Flask, redirect, render_template, request, session, url_for
+from pymongo import MongoClient
+
+matplotlib.use("agg")
+
 
 # REDIS DATABASE CONNECTION
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------
 # Replace the values with your own Redis configuration
-# redis_host = 'localhost'
-# redis_port = 6379
-# redis_password = None
+redis_host = "localhost"
+redis_port = 6379
+redis_password = None
 
-# # Connect to Redis
-# redis_client = redis.Redis(host=redis_host, port=redis_port, password=redis_password, db=0)
+# Connect to Redis
+redis_client = redis.Redis(host=redis_host, port=redis_port, password=redis_password, db=0)
 
-# MONGODB DATABASE CONNECTION 
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# MONGODB DATABASE CONNECTION
+#  ----------------------------------------------------------------
 # # create a MongoClient instance
-client = MongoClient('mongodb+srv://Naseeb:0cHHRcuW9K7t7tlE@testcluster.vnwjzfa.mongodb.net/test')
+client = MongoClient("mongodb+srv://Naseeb:0cHHRcuW9K7t7tlE@testcluster.vnwjzfa.mongodb.net/test")
 
 
 # select the database and collection
-db = client['Naseeb']
-collection = db['Feedback']
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+db = client["Naseeb"]
+collection = db["Feedback"]
+#  ----------------------------------------------------------------
 
 app = Flask(__name__)
 
+
 # Define the column names for the feedback CSV file
-# csv_columns = ['patient_id', 'name', 'age', 'email', 'date', 'overall_exp','doc_care','doc_comm','nurse_care','food_quality','accommodation','sanitization','safety','staff_support','doc_involvement','nurse_promptness','cleanliness','timely_info','med_info','other_comments']
+# csv_columns = ['patient_id', 'name', 'age', 'email', 'date', 'overall_exp',
+# 'doc_care','doc_comm','nurse_care','food_quality','accommodation','sanitization',
+# 'safety','staff_support','doc_involvement','nurse_promptness','cleanliness','timely_info','med_info','other_comments']
 # Define the route for the feedback form
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@app.route('/feedback', methods=['GET', 'POST'])
+#  -----------------------------------------------------------------
+@app.route("/feedback", methods=["GET", "POST"])
 def feedback():
     # feedback_submitted = False
-    if request.method == 'POST':
-        
+    if request.method == "POST":
         # Get the form data
-        patient_id = int(request.form['patient_id'])
+        patient_id = int(request.form["patient_id"])
         # Check if the patient ID exists in the session
-        if 'patient_id' in session:
+        if "patient_id" in session:
             # Patient ID already exists in session, indicating feedback already submitted
-            return redirect(url_for('feedback_error'))
-        
-        # Check if the patient ID exists in the database
-        if collection.find_one({'patient_id': patient_id}):
-            # Patient ID already exists in the database, indicating feedback already submitted
-            return redirect(url_for('feedback_error'))
-        
-        # Add the patient ID to the session
-        session['patient_id'] = patient_id
-        name = request.form['name']
-        age = int(request.form['age'])
-        email = request.form['email']
-        date = request.form['date']
+            return redirect(url_for("feedback_error"))
 
-        overall_exp = int(request.form['overall_exp'])
-        doc_care = int(request.form['doc_care'])
-        doc_comm = int(request.form['doc_comm'])
-        nurse_care = int(request.form['nurse_care'])
-        food_quality = int(request.form['food_quality'])
-        accommodation = int(request.form['accommodation'])
-        sanitization = int(request.form['sanitization'])
-        safety = int(request.form['safety'])
-        staff_support = int(request.form['staff_support'])
-        doc_involvement = request.form['doc_involvement']
-        nurse_promptness = request.form['nurse_promptness']
-        cleanliness = request.form['cleanliness']
-        timely_info = request.form['timely_info']
-        med_info = request.form['med_info']
-        other_comments = request.form['other_comments']
+        # Check if the patient ID exists in the database
+        if collection.find_one({"patient_id": patient_id}):
+            # Patient ID already exists in the database, indicating feedback already submitted
+            return redirect(url_for("feedback_error"))
+
+        # Add the patient ID to the session
+        session["patient_id"] = patient_id
+        name = request.form["name"]
+        age = int(request.form["age"])
+        email = request.form["email"]
+        date = request.form["date"]
+
+        overall_exp = int(request.form["overall_exp"])
+        doc_care = int(request.form["doc_care"])
+        doc_comm = int(request.form["doc_comm"])
+        nurse_care = int(request.form["nurse_care"])
+        food_quality = int(request.form["food_quality"])
+        accommodation = int(request.form["accommodation"])
+        sanitization = int(request.form["sanitization"])
+        safety = int(request.form["safety"])
+        staff_support = int(request.form["staff_support"])
+        doc_involvement = request.form["doc_involvement"]
+        nurse_promptness = request.form["nurse_promptness"]
+        cleanliness = request.form["cleanliness"]
+        timely_info = request.form["timely_info"]
+        med_info = request.form["med_info"]
+        other_comments = request.form["other_comments"]
 
         # Build a dictionary with the feedback data
         feedback_data = {
-            'patient_id': patient_id,
-            'name': name,
-            'age': age,
-            'email': email,
-            'date': date,
-            'overall_exp': overall_exp,
-            'doc_care': doc_care,
-            'doc_comm': doc_comm,
-            'nurse_care': nurse_care,
-            'food_quality': food_quality,
-            'accommodation': accommodation,
-            'sanitization': sanitization,
-            'safety': safety,
-            'staff_support': staff_support,
-            'doc_involvement': doc_involvement,
-            'nurse_promptness': nurse_promptness,
-            'cleanliness': cleanliness,
-            'timely_info': timely_info,
-            'med_info': med_info,
-            'other_comments': other_comments
+            "patient_id": patient_id,
+            "name": name,
+            "age": age,
+            "email": email,
+            "date": date,
+            "overall_exp": overall_exp,
+            "doc_care": doc_care,
+            "doc_comm": doc_comm,
+            "nurse_care": nurse_care,
+            "food_quality": food_quality,
+            "accommodation": accommodation,
+            "sanitization": sanitization,
+            "safety": safety,
+            "staff_support": staff_support,
+            "doc_involvement": doc_involvement,
+            "nurse_promptness": nurse_promptness,
+            "cleanliness": cleanliness,
+            "timely_info": timely_info,
+            "med_info": med_info,
+            "other_comments": other_comments,
         }
-       
+
         # Inserting data into Redis
         # convert the dictionary to a JSON string
         data_json = json.dumps(feedback_data)
         redis_client.set(f"data:{feedback_data['patient_id']}", data_json)
 
         # Inserting data into MongoDb
-        # collection.insert_one(feedback_data)
-        insert_into_database(feedback_data)
-            
-        return redirect(url_for('feedback_thankyou'))
+        collection.insert_one(feedback_data)
+        # insert_into_database(feedback_data)
+
+        return redirect(url_for("feedback_thankyou"))
 
     else:
-        return render_template('feedback.html')
+        return render_template("feedback.html")
 
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+
+#  --------------------------------------------------------------------
 # Define the route for the feedback thank-you page
-@app.route('/feedback-thankyou')
+@app.route("/feedback-thankyou")
 def feedback_thankyou():
-    return render_template('feedback_thankyou.html')
+    return render_template("feedback_thankyou.html")
 
-# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
-# Define the route for already submitted feedback 
-@app.route('/feedback_error')
+
+# --------------------------------------------------------------------
+# Define the route for already submitted feedback
+@app.route("/feedback_error")
 def feedback_error():
-    return render_template('feedback_error.html')
+    return render_template("feedback_error.html")
 
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#  -------------------------------------------------------------------
 # Define the route for home page
-@app.route('/')
+@app.route("/")
 def home():
-    return render_template('home.html')
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    return render_template("home.html")
+
+
+#  --------------------------------------------------------------------
 # Define the route for bargraphs page
-@app.route('/bargraphs',methods=['GET','POST'])
+@app.route("/bargraphs", methods=["GET", "POST"])
 def bargraphs():
-        rating_cols = ['overall_exp','doc_care','doc_comm','nurse_care','food_quality','accommodation','sanitization','safety','staff_support']
-        yes_no__cols = ['doc_involvement','nurse_promptness','cleanliness','timely_info','med_info']
-        comment_col = ['other_comments']
-        path = ['Not a String']
-        def bar_graph_rating(var):
-            ratings = collection.find({}, {'_id': 0, var: 1})
-            # rating_counts = [0, 0, 0, 0, 0]
-            # total_ratings = 0
+    rating_cols = [
+        "overall_exp",
+        "doc_care",
+        "doc_comm",
+        "nurse_care",
+        "food_quality",
+        "accommodation",
+        "sanitization",
+        "safety",
+        "staff_support",
+    ]
+    # yes_no__cols = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
+    # comment_col = ["other_comments"]
+    path = ["Not a String"]
 
-            # for rating in ratings:
-            #     rating_value = rating[var]
-            #     if rating_value >= 1 and rating_value <= 5:
-            #         rating_counts[rating_value - 1] += 1
-            #         total_ratings += 1
+    def bar_graph_rating(var):
+        ratings = collection.find({}, {"_id": 0, var: 1})
+        # rating_counts = [0, 0, 0, 0, 0]
+        # total_ratings = 0
 
-            # Calculate the number of patients in each rating category
-            one_star = 0
-            two_star = 0
-            three_star = 0
-            four_star = 0
-            five_star = 0
+        # for rating in ratings:
+        #     rating_value = rating[var]
+        #     if rating_value >= 1 and rating_value <= 5:
+        #         rating_counts[rating_value - 1] += 1
+        #         total_ratings += 1
 
-            for rating in ratings:
-                if rating[var] == 1:
-                    one_star += 1
-                elif rating[var] == 2:
-                    two_star += 1
-                elif rating[var] == 3:
-                    three_star += 1
-                elif rating[var] == 4:
-                    four_star += 1
-                elif rating[var] == 5:
-                    five_star += 1
-            
-            total_ratings2 = one_star+two_star+three_star+four_star+five_star
-            # Plot the bar graph
-            x_labels = ['1 Star', '2 Star', '3 Star', '4 Star', '5 Star']
-            y_values = [one_star, two_star, three_star, four_star, five_star]
+        # Calculate the number of patients in each rating category
+        one_star = 0
+        two_star = 0
+        three_star = 0
+        four_star = 0
+        five_star = 0
 
-            # Add count labels on top of each bar
-            for i, count in enumerate(y_values):
-                plt.text(i, count, str(count), ha='center', va='bottom')
+        for rating in ratings:
+            if rating[var] == 1:
+                one_star += 1
+            elif rating[var] == 2:
+                two_star += 1
+            elif rating[var] == 3:
+                three_star += 1
+            elif rating[var] == 4:
+                four_star += 1
+            elif rating[var] == 5:
+                five_star += 1
 
-            plt.bar(x_labels, y_values)
-            # plt.title(var)
-            plt.title(var)
-            plt.xlabel('Rating')
-            plt.ylabel('Number of Patients')
-            if not os.path.exists('static'):
-                os.makedirs('static')
-            path_ = 'static/bar_graph_'+var+'.png'
-            path.append(path_)
-            plt.savefig(path_)    
-            plt.close()
-            return total_ratings2
-        # save the plot to a file
-        # plt.savefig('static/bar_graph.png')
+        total_ratings2 = one_star + two_star + three_star + four_star + five_star
+        # Plot the bar graph
+        x_labels = ["1 Star", "2 Star", "3 Star", "4 Star", "5 Star"]
+        y_values = [one_star, two_star, three_star, four_star, five_star]
 
-        # render the   HTML template with the bar graph image
-        path2 = ['Not a string']
+        # Add count labels on top of each bar
+        for i, count in enumerate(y_values):
+            plt.text(i, count, str(count), ha="center", va="bottom")
 
-        def bar_graph_yes_no():
-            questions = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
-            counts_yes = [0] * len(questions)
-            counts_no = [0] * len(questions)
+        plt.bar(x_labels, y_values)
+        # plt.title(var)
+        plt.title(var)
+        plt.xlabel("Rating")
+        plt.ylabel("Number of Patients")
+        if not os.path.exists("static"):
+            os.makedirs("static")
+        path_ = "static/bar_graph_" + var + ".png"
+        path.append(path_)
+        plt.savefig(path_)
+        plt.close()
+        return total_ratings2
 
-            # Retrieve the data from the database
-            for doc in collection.find():
-                for i, q in enumerate(questions):
-                    if doc[q] == "yes":
-                        counts_yes[i] += 1
-                    elif doc[q] == "no":
-                        counts_no[i] += 1
+    # save the plot to a file
+    # plt.savefig('static/bar_graph.png')
 
-            # Plot the bar graph
-            x_labels = questions
-            x_indices = range(len(x_labels))
+    # render the   HTML template with the bar graph image
+    path2 = ["Not a string"]
 
-            plt.bar(x_indices, counts_yes, label="Yes")
-            plt.bar(x_indices, counts_no, bottom=counts_yes, label="No")
+    def bar_graph_yes_no():
+        questions = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
+        counts_yes = [0] * len(questions)
+        counts_no = [0] * len(questions)
 
-            # Add count labels on top of each bar
-            for i, count in enumerate(counts_yes):
-                plt.text(i, count, str(count), ha='center', va='bottom')
+        # Retrieve the data from the database
+        for doc in collection.find():
+            for i, q in enumerate(questions):
+                if doc[q] == "yes":
+                    counts_yes[i] += 1
+                elif doc[q] == "no":
+                    counts_no[i] += 1
 
-            for i, count in enumerate(counts_no):
-                plt.text(i, count + counts_yes[i], str(count), ha='center', va='bottom')
+        # Plot the bar graph
+        x_labels = questions
+        x_indices = range(len(x_labels))
 
-            plt.title("Responses to Yes/No Questions")
-            plt.xlabel("Question")
-            plt.ylabel("Count")
-            plt.legend()
-            plt.xticks(x_indices, x_labels)  # Set the x-axis tick labels
+        plt.bar(x_indices, counts_yes, label="Yes")
+        plt.bar(x_indices, counts_no, bottom=counts_yes, label="No")
 
-            if not os.path.exists('static'):
-                os.makedirs('static')
+        # Add count labels on top of each bar
+        for i, count in enumerate(counts_yes):
+            plt.text(i, count, str(count), ha="center", va="bottom")
 
-            path_ = 'static/bar_graph_yes_no.png'
-            path2.append(path_)
+        for i, count in enumerate(counts_no):
+            plt.text(i, count + counts_yes[i], str(count), ha="center", va="bottom")
 
-            plt.gcf().set_size_inches(15, 8)  # Set figure size to 15x8 inches
+        plt.title("Responses to Yes/No Questions")
+        plt.xlabel("Question")
+        plt.ylabel("Count")
+        plt.legend()
+        plt.xticks(x_indices, x_labels)  # Set the x-axis tick labels
 
-            # Save the figure with customized size
-            plt.savefig(path_, dpi=100, bbox_inches='tight')
-            plt.close()  # Close the plot to release resources
-            
+        if not os.path.exists("static"):
+            os.makedirs("static")
+
+        path_ = "static/bar_graph_yes_no.png"
+        path2.append(path_)
+
+        plt.gcf().set_size_inches(15, 8)  # Set figure size to 15x8 inches
+
+        # Save the figure with customized size
+        plt.savefig(path_, dpi=100, bbox_inches="tight")
+        plt.close()  # Close the plot to release resources
+
+    for var in rating_cols:
+        Total_ratings = bar_graph_rating(var)
+
+    bar_graph_yes_no()
+    title = "Bar Graph Analysis" + " (Total Ratings = " + str(Total_ratings) + ")"
+
+    return render_template(
+        "bargraph.html",
+        image_path1=path[1],
+        image_path2=path[2],
+        image_path3=path[3],
+        image_path4=path[4],
+        image_path5=path[5],
+        image_path6=path[6],
+        image_path7=path[7],
+        image_path8=path[8],
+        image_path9=path[9],
+        image_path11=path2[1],
+        title=title,
+    )
 
 
-        for var in rating_cols:
-            Total_ratings = bar_graph_rating(var)
-        
+# else:
+#     return render_template('barGraph.html')
 
-        bar_graph_yes_no()
-        title = "Bar Graph Analysis"+' (Total Ratings = ' + str(Total_ratings) + ')'
-
-        return render_template( 'bargraph.html', image_path1 =path[1],image_path2 = path[2], image_path3 = path[3], image_path4 = path[4], image_path5 = path[5],
-                               image_path6 = path[6], image_path7 = path[7], image_path8 = path[8], image_path9 = path[9],
-                               image_path11 = path2[1],  
-                               title = title 
-                                )
-
-    # else:
-    #     return render_template('barGraph.html')
 
 # image_path12 = path2[2], image_path13 = path2[3], image_path14 = path2[4], image_path15 = path2[5],
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Define the route for piecharts page
-@app.route('/piecharts', methods=['GET','POST'])
+#  -----------------------------------------------------------------
+@app.route("/piecharts", methods=["GET", "POST"])
 def piecharts():
-    rating_cols = ['overall_exp','doc_care','doc_comm','nurse_care','food_quality','accommodation','sanitization','safety','staff_support']
-    yes_no__cols = ['doc_involvement','nurse_promptness','cleanliness','timely_info','med_info']
-    comment_col = ['other_comments']
-    
-    path = ['Not a String']
+    rating_cols = [
+        "overall_exp",
+        "doc_care",
+        "doc_comm",
+        "nurse_care",
+        "food_quality",
+        "accommodation",
+        "sanitization",
+        "safety",
+        "staff_support",
+    ]
+    # yes_no__cols = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
+    # comment_col = ["other_comments"]
+
+    path = ["Not a String"]
 
     def piechart_rating(var):
         val = "{}".format(var)
@@ -288,32 +321,31 @@ def piecharts():
         total_ratings = one_star + two_star + three_star + four_star + five_star
 
         # create a pie chart
-        labels = ['1 Star', '2 Star', '3 Star', '4 Star', '5 Star']
+        labels = ["1 Star", "2 Star", "3 Star", "4 Star", "5 Star"]
         sizes = [one_star, two_star, three_star, four_star, five_star]
-        colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#d1f2eb']
+        # colors = ["#ff9999", "#66b3ff", "#99ff99", "#ffcc99", "#d1f2eb"]
 
         plt.clf()
         patches, _ = plt.pie(sizes, startangle=90)
-        plt.axis('equal')
-        plt.title(var + ' Rating')
+        plt.axis("equal")
+        plt.title(var + " Rating")
 
         # Calculate percentages and format count and percentage labels for the legend
-        percentages = [f'{size} ({size / total_ratings * 100:.1f}%)' for size in sizes]
-        legend_labels = [f'{label}\n{percentage}' for label, percentage in zip(labels, percentages)]
+        percentages = [f"{size} ({size / total_ratings * 100:.1f}%)" for size in sizes]
+        legend_labels = [f"{label}\n{percentage}" for label, percentage in zip(labels, percentages)]
 
-        plt.legend(patches, legend_labels, title='Star Ratings')
+        plt.legend(patches, legend_labels, title="Star Ratings")
 
-        if not os.path.exists('static'):
-            os.makedirs('static')
-        path_ = 'static/piechart_' + var + '.png'
+        if not os.path.exists("static"):
+            os.makedirs("static")
+        path_ = "static/piechart_" + var + ".png"
         path.append(path_)
         plt.savefig(path_)
         plt.close()
 
         return total_ratings
 
-
-    path2 = ['Not a string']
+    path2 = ["Not a string"]
 
     def piechart_yes_no():
         # count the number of yes and no responses for a question
@@ -329,7 +361,7 @@ def piecharts():
 
             labels = ["Yes", "No"]
             values = [yes_count, no_count]
-            percentages = [f'{count} ({count / total_count * 100:.1f}%)' for count in values]
+            percentages = [f"{count} ({count / total_count * 100:.1f}%)" for count in values]
 
             plt.clf()
             fig, ax = plt.subplots()
@@ -337,12 +369,12 @@ def piecharts():
             ax.set_title(question)
 
             # Add count and percentage labels to the legend
-            legend_labels = [f'{label}\n{percentage}' for label, percentage in zip(labels, percentages)]
+            legend_labels = [f"{label}\n{percentage}" for label, percentage in zip(labels, percentages)]
             ax.legend(patches, legend_labels)
 
-            if not os.path.exists('static'):
-                os.makedirs('static')
-            path_ = 'static/piechart_yes_no' + question + '.png'
+            if not os.path.exists("static"):
+                os.makedirs("static")
+            path_ = "static/piechart_yes_no" + question + ".png"
             path2.append(path_)
             plt.savefig(path_)
             plt.close()
@@ -352,38 +384,60 @@ def piecharts():
         for var in questions:
             plot_pie(var)
 
-
-
     Total_ratings = 0
     count_val = 0
     for var in rating_cols:
         Total_ratings += piechart_rating(var)
         count_val += 1
     piechart_yes_no()
- 
+
     Total_ratings //= count_val
     # for var in rating_cols:
     #     piechart_rating(var)
-
 
     # piechart_yes_no()
 
     # Total_ratings = piechart_rating(var)
 
-    title = "Pie Chart Analysis"+' (Total Ratings = ' + str(Total_ratings) + ')'
+    title = "Pie Chart Analysis" + " (Total Ratings = " + str(Total_ratings) + ")"
 
-    return render_template( 'piechart.html', image_path1 =path[1],image_path2 = path[2], image_path3 = path[3], image_path4 = path[4], image_path5 = path[5],
-                            image_path6 = path[6], image_path7 = path[7], image_path8 = path[8], image_path9 = path[9],
-                            image_path11 = path2[1], image_path12 = path2[2], image_path13 = path2[3], image_path14 = path2[4], image_path15 = path2[5],  
-                            title = title 
-                            )
+    return render_template(
+        "piechart.html",
+        image_path1=path[1],
+        image_path2=path[2],
+        image_path3=path[3],
+        image_path4=path[4],
+        image_path5=path[5],
+        image_path6=path[6],
+        image_path7=path[7],
+        image_path8=path[8],
+        image_path9=path[9],
+        image_path11=path2[1],
+        image_path12=path2[2],
+        image_path13=path2[3],
+        image_path14=path2[4],
+        image_path15=path2[5],
+        title=title,
+    )
 
 
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  ------------------------------------------------------------------
 
-rating_cols = ['overall_exp', 'doc_care', 'doc_comm', 'nurse_care', 'food_quality', 'accommodation', 'sanitization', 'safety', 'staff_support']
-yes_no_cols = ['doc_involvement', 'nurse_promptness', 'cleanliness', 'timely_info', 'med_info']
-@app.route('/overall_bargraphs', methods=['GET','POST'])
+rating_cols = [
+    "overall_exp",
+    "doc_care",
+    "doc_comm",
+    "nurse_care",
+    "food_quality",
+    "accommodation",
+    "sanitization",
+    "safety",
+    "staff_support",
+]
+yes_no_cols = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
+
+
+@app.route("/overall_bargraphs", methods=["GET", "POST"])
 def overall_bargraphs():
     def save_bar_graphs_():
         star_ratings = [1, 2, 3, 4, 5]
@@ -401,12 +455,12 @@ def overall_bargraphs():
 
         # Count the number of occurrences for each yes/no column
         for col in yes_no_cols:
-            yes_count = collection.count_documents({col: 'yes'})
-            no_count = collection.count_documents({col: 'no'})
+            yes_count = collection.count_documents({col: "yes"})
+            no_count = collection.count_documents({col: "no"})
             yes_no_counts[0].append(yes_count)
             yes_no_counts[1].append(no_count)
 
-            x_labels.append(col + ' (Yes/No)')
+            x_labels.append(col + " (Yes/No)")
         # Sort the counts and x labels for each star rating in decreasing order
         sorted_counts = []
         sorted_labels = []
@@ -429,82 +483,95 @@ def overall_bargraphs():
             fig, ax = plt.subplots(figsize=(10, 6))  # Adjust the figure size as needed
             # Plot the bar graph
             bars = plt.bar(range(len(sorted_counts[i])), sorted_counts[i])
-            plt.xlabel('Column')
-            plt.ylabel('Count')
-            plt.title('Count of ' + str(star_ratings[i]) + '-Star Ratings by Column')
-            plt.xticks(range(len(sorted_counts[i])), sorted_labels[i], rotation='vertical')
+            plt.xlabel("Column")
+            plt.ylabel("Count")
+            plt.title("Count of " + str(star_ratings[i]) + "-Star Ratings by Column")
+            plt.xticks(range(len(sorted_counts[i])), sorted_labels[i], rotation="vertical")
             plt.tight_layout()  # Adjust the spacing between subplots
 
             # Add count labels on top of each bar
             for bar in bars:
                 height = bar.get_height()
-                plt.text(bar.get_x() + bar.get_width() / 2, height, height, ha='center', va='bottom')
+                plt.text(bar.get_x() + bar.get_width() / 2, height, height, ha="center", va="bottom")
 
-            if not os.path.exists('static'):
-                os.makedirs('static')
-            path = 'static/bargraph_' + str(star_ratings[i]) + '_star_ratings.png'
+            if not os.path.exists("static"):
+                os.makedirs("static")
+            path = "static/bargraph_" + str(star_ratings[i]) + "_star_ratings.png"
             plt.savefig(path)
             plt.close()
-    # Create bar graphs for yes/no columns
+        # Create bar graphs for yes/no columns
         for i in range(2):
             plt.clf()
             fig, ax = plt.subplots(figsize=(10, 6))  # Adjust the figure size as needed
             # Plot the bar graph
             bars = plt.bar(range(len(sorted_counts[i + len(star_ratings)])), sorted_counts[i + len(star_ratings)])
-            plt.xlabel('Column')
-            plt.ylabel('Count')
-            plt.title('Count of Yes/No Responses by Column')
-            plt.xticks(range(len(sorted_counts[i + len(star_ratings)])), sorted_labels[i + len(star_ratings)], rotation='vertical')
+            plt.xlabel("Column")
+            plt.ylabel("Count")
+            plt.title("Count of Yes/No Responses by Column")
+            plt.xticks(
+                range(len(sorted_counts[i + len(star_ratings)])),
+                sorted_labels[i + len(star_ratings)],
+                rotation="vertical",
+            )
             plt.tight_layout()  # Adjust the spacing between subplots
 
             # Add count labels on top of each bar
             for bar in bars:
                 height = bar.get_height()
-                plt.text(bar.get_x() + bar.get_width() / 2, height, height, ha='center', va='bottom')
+                plt.text(bar.get_x() + bar.get_width() / 2, height, height, ha="center", va="bottom")
 
-            path = 'static/bargraph_yes_no_responses.png' if i == 0 else 'static/bargraph_no_responses.png'
+            path = "static/bargraph_yes_no_responses.png" if i == 0 else "static/bargraph_no_responses.png"
             plt.savefig(path)
             plt.close()
 
-        return [f'static/bargraph_{star}_star_ratings.png' for star in star_ratings] + ['static/bargraph_yes_no_responses.png', 'static/bargraph_no_responses.png']
+        return [f"static/bargraph_{star}_star_ratings.png" for star in star_ratings] + [
+            "static/bargraph_yes_no_responses.png",
+            "static/bargraph_no_responses.png",
+        ]
 
     title = "Over Rating Bar Graph Analysis"
     path3 = save_bar_graphs_()
-    return render_template( 'overall_bargraph.html',
-                        image_path16 = path3[0], image_path17 = path3[1],image_path18 = path3[2], image_path19 = path3[3], image_path20 = path3[4],
-                        image_path21 = path3[5], image_path22= path3[6],
-                        title = title 
-                        )
+    return render_template(
+        "overall_bargraph.html",
+        image_path16=path3[0],
+        image_path17=path3[1],
+        image_path18=path3[2],
+        image_path19=path3[3],
+        image_path20=path3[4],
+        image_path21=path3[5],
+        image_path22=path3[6],
+        title=title,
+    )
 
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Render the HTML form
-@app.route('/manage', methods=['GET'])
+
+#  --------------------------------------------------------------------
+@app.route("/manage", methods=["GET"])
 def manage():
-    return render_template('home_manage.html')
+    return render_template("home_manage.html")
 
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#  --------------------------------------------------------------------
+
 
 # Process the form submission
-@app.route('/manage', methods=['POST'])
+@app.route("/manage", methods=["POST"])
 def process_form():
-    
-    if 'show' in request.form:
+    if "show" in request.form:
         # Retrieve entries from the database based on the form input values
         entries = retrieve_entries(request.form)
         search_criteria = get_search_criteria(request.form)
-        return render_template('manage.html',search_criteria=search_criteria, entries=entries)
-    
-    elif 'update' in request.form:
+        return render_template("manage.html", search_criteria=search_criteria, entries=entries)
+
+    elif "update" in request.form:
         if not any(request.form.values()):
             message = "Invalid operation: Nothing to update."
-            return render_template('manage.html', message=message)
+            return render_template("manage.html", message=message)
         # Update an entry in the database
-        patient_id = int(request.form['patient_id'])
+        patient_id = int(request.form["patient_id"])
         new_data = {
-            'name': request.form['name'],
-            'age': request.form['age'],
-            'email': request.form['email']
+            "name": request.form["name"],
+            "age": request.form["age"],
+            "email": request.form["email"],
             # Add more fields as needed
         }
         updated_count = update_entry(patient_id, new_data)
@@ -512,67 +579,75 @@ def process_form():
             message = f"Entry with Patient ID {patient_id} successfully updated."
         else:
             message = f"Failed to update entry with Patient ID {patient_id}."
-        return render_template('manage.html', message=message)
-    
-    elif 'delete' in request.form:
+        return render_template("manage.html", message=message)
+
+    elif "delete" in request.form:
         if not any(request.form.values()):
             message = "Invalid operation: Nothing to delete."
-            return render_template('manage.html', message=message)
+            return render_template("manage.html", message=message)
         # Delete an entry from the database
-        patient_id = int(request.form['patient_id'])
+        patient_id = int(request.form["patient_id"])
         deleted_count = delete_entry(patient_id)
         if deleted_count == 1:
             message = f"Entry with Patient ID {patient_id} successfully deleted."
         else:
             message = f"Failed to delete entry with Patient ID {patient_id}."
-        return render_template('manage.html', message=message)
+        return render_template("manage.html", message=message)
 
     else:
-        return render_template('manage.html')
+        return render_template("manage.html")
 
-#  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+
 
 # Retrieve search criteria from the form input values
 def get_search_criteria(form_data):
     search_criteria = []
 
     for field, value in form_data.items():
-        if value and field != 'show':
+        if value and field != "show":
             search_criteria.append(f"{field}: {value}")
 
-    return ' and '.join(search_criteria)
+    return " and ".join(search_criteria)
+
 
 # Retrieve entries from the database
-def retrieve_entries(num_entries):
-    entries = collection.find().limit(num_entries)
-    return list(entries)
+# def retrieve_entries(num_entries):
+#     entries = collection.find().limit(num_entries)
+#     return list(entries)
+
 
 # # Update an entry in the database
 # def update_entry(patient_id, new_data):
 #     result = collection.update_one({'patient_id': patient_id}, {'$set': new_data})
 #     return result.modified_count
 
+
 # Update an entry in the database
 def update_entry(patient_id, new_data):
-    existing_data = collection.find_one({'patient_id': patient_id})
+    existing_data = collection.find_one({"patient_id": patient_id})
 
     for key, value in new_data.items():
         if value:
             existing_data[key] = value
 
-    result = collection.update_one({'patient_id': patient_id}, {'$set': existing_data})
+    result = collection.update_one({"patient_id": patient_id}, {"$set": existing_data})
     return result.modified_count
 
 
 # Search entries by patient ID
 # Retrieve entries from the database based on the form input values
 def retrieve_entries(form_data):
+    """
+    This function returns list of entries
+    """
     query = {}
 
     for field, value in form_data.items():
-        if value and field in ['patient_id', 'age']:
+        if value and field in ["patient_id", "age"]:
             query[field] = int(value)
-        elif value and field == 'name':
+        elif value and field == "name":
             regex = re.compile(re.escape(value), re.IGNORECASE)
             query[field] = regex
         elif value:
@@ -584,50 +659,9 @@ def retrieve_entries(form_data):
 
 # Delete an entry from the database
 def delete_entry(patient_id):
-    result = collection.delete_one({'patient_id': patient_id})
+    result = collection.delete_one({"patient_id": patient_id})
     return result.deleted_count
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True, port=5002)
-
-
-"""
-
-'overall_exp','doc_care','doc_comm','nurse_care','food_quality','accommodation','sanitization','safety','staff_support',
-
-'doc_involvement','nurse_promptness','cleanliness','timely_info','med_info',
-
-'other_comments'
-
-overall_exp                             'How would you rate your overall experience at our hospital?', 'type': 'rating'},
-doc_care                                'How satisfied were you with the quality of care provided by your doctor(s)?', 'type': 'rating'},
-doc_comm                                'How satisfied were you with the amount of time the doctor(s) spent with you?', 'type': 'rating'}, 
-nurse_care                              'How satisfied were you with the level of attention and care provided by the nursing staff?', 'type': 'rating'},
-food_quality                            'How satisfied were you with the quality and variety of food provided during your stay?', 'type': 'rating'},
-accommodation                           'How comfortable were the accommodations during your stay?', 'type': 'rating'},
-sanitization                            'How satisfied were you with the level of cleaning and sanitization in your room and other hospital areas?', 'type': 'rating'},
-safety                                  'How well were you informed about the hospital\'s safety and infection control measures?', 'type': 'rating'},
-staff_support                           'How satisfied were you with the level of attention and support provided by other hospital staff, such as physical therapists, social workers, or case managers?', 'type': 'rating'},
-
-
-doc_involvement                         'Were your needs and concerns addressed promptly and effectively by the nursing staff?', 'type': 'yesno'},
-nurse_promptness                        'Were you provided with clear and complete instructions for after-care?', 'type': 'yesno'},
-cleanliness                             'Were the facilities clean and well-maintained?', 'type': 'yesno'},
-timely_info                             'Did you receive timely and accurate information about your diagnosis and treatment?', 'type': 'yesno'},
-med_info                                'Were your medications explained to you, including possible side effects?', 'type': 'yesno'},
-
-
-other_comments                          'Is there anything else you would like to share about your experience at our hospital? (up to 200 words)', 'type': 'text'},
-
-
-
-
-"""
-
-
-
-
-
-

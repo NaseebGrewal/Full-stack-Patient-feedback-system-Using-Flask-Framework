@@ -1,0 +1,33 @@
+
+"""
+
+'overall_exp','doc_care','doc_comm','nurse_care','food_quality','accommodation','sanitization','safety','staff_support',
+
+'doc_involvement','nurse_promptness','cleanliness','timely_info','med_info',
+
+'other_comments'
+
+overall_exp                             'How would you rate your overall experience at our hospital?', 'type': 'rating'},
+doc_care                                'How satisfied were you with the quality of care provided by your doctor(s)?', 'type': 'rating'},
+doc_comm                                'How satisfied were you with the amount of time the doctor(s) spent with you?', 'type': 'rating'}, 
+nurse_care                              'How satisfied were you with the level of attention and care provided by the nursing staff?', 'type': 'rating'},
+food_quality                            'How satisfied were you with the quality and variety of food provided during your stay?', 'type': 'rating'},
+accommodation                           'How comfortable were the accommodations during your stay?', 'type': 'rating'},
+sanitization                            'How satisfied were you with the level of cleaning and sanitization in your room and other hospital areas?', 'type': 'rating'},
+safety                                  'How well were you informed about the hospital\'s safety and infection control measures?', 'type': 'rating'},
+staff_support                           'How satisfied were you with the level of attention and support provided by other hospital staff, such as physical therapists, social workers, or case managers?', 'type': 'rating'},
+
+
+doc_involvement                         'Were your needs and concerns addressed promptly and effectively by the nursing staff?', 'type': 'yesno'},
+nurse_promptness                        'Were you provided with clear and complete instructions for after-care?', 'type': 'yesno'},
+cleanliness                             'Were the facilities clean and well-maintained?', 'type': 'yesno'},
+timely_info                             'Did you receive timely and accurate information about your diagnosis and treatment?', 'type': 'yesno'},
+med_info                                'Were your medications explained to you, including possible side effects?', 'type': 'yesno'},
+
+
+other_comments                          'Is there anything else you would like to share about your experience at our hospital? (up to 200 words)', 'type': 'text'},
+
+
+
+
+"""
