@@ -25,7 +25,8 @@ redis_client = redis.Redis(host=redis_host, port=redis_port, password=redis_pass
 # MONGODB DATABASE CONNECTION
 #  ----------------------------------------------------------------
 # # create a MongoClient instance
-client = MongoClient("mongodb+srv://Naseeb:0cHHRcuW9K7t7tlE@testcluster.vnwjzfa.mongodb.net/test")
+mongobd_password = os.getenv("mongodb_password")
+client = MongoClient(f"mongodb+srv://ngrewal240:{mongobd_password}@cluster1.1bdcxqo.mongodb.net/")
 
 
 # select the database and collection
