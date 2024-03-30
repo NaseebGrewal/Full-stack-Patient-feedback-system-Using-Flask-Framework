@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from urllib.parse import quote_plus
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -25,8 +26,10 @@ redis_client = redis.Redis(host=redis_host, port=redis_port, password=redis_pass
 # MONGODB DATABASE CONNECTION
 #  ----------------------------------------------------------------
 # # create a MongoClient instance
-mongobd_password = os.getenv("mongodb_password")
-client = MongoClient(f"mongodb+srv://ngrewal240:{mongobd_password}@cluster1.1bdcxqo.mongodb.net/")
+# mongobd_password = os.getenv("mongodb_password")
+# client = MongoClient(f"mongodb+srv://ngrewal240:{mongobd_password}@cluster1.1bdcxqo.mongodb.net/")
+password = quote_plus("Ng@.1234567890")
+client = MongoClient(f"mongodb+srv://ngrewal240:{password}@cluster1.1bdcxqo.mongodb.net/")
 
 
 # select the database and collection
