@@ -1,20 +1,18 @@
-import json
 import os
-import re
 from urllib.parse import quote_plus
 
 import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
 import redis
-from flask import Flask, redirect, render_template, request, session, url_for
-from pymongo import MongoClient
+from flask import Flask, render_template
 from flask_bcrypt import Bcrypt
+from flask_talisman import Talisman
 from flask_wtf import FlaskForm
+from markupsafe import escape
+from pymongo import MongoClient
+from pymongo.collection import ReturnDocument
 from wtforms import IntegerField, StringField
 from wtforms.validators import DataRequired, Email, NumberRange
-from pymongo.collection import ReturnDocument
-from flask_talisman import Talisman
+
 matplotlib.use("agg")
 
 
@@ -45,8 +43,6 @@ collection = db["Feedback"]
 app = Flask(__name__)
 
 
-
-
 # Hashing Sensitive Data
 
 bcrypt = Bcrypt(app)
@@ -65,9 +61,7 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True  # Prevent JavaScript access to ses
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # Control when cookies are sent with requests from external sites.
 
 
-
-
-#Input Validator
+# Input Validator
 class FeedbackForm(FlaskForm):
     patient_id = IntegerField("Patient ID", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
@@ -76,12 +70,16 @@ class FeedbackForm(FlaskForm):
     # ... add other fields and validators ...
 
 
-
-
-
-
 # Sanitize Data
-# When updating an entry in MongoDB, sanitize the input data
+
+
+def sanitize(input_data):
+    if isinstance(input_data, str):
+        return escape(input_data)
+    return input_data
+
+
+# Update an entry in the database with sanitized data
 def update_entry(patient_id, new_data):
     sanitized_data = {key: sanitize(value) for key, value in new_data.items() if value}
     result = collection.find_one_and_update(
@@ -90,11 +88,11 @@ def update_entry(patient_id, new_data):
     return result
 
 
-
-#Security Headers
+# Security Headers
 Talisman(app, content_security_policy=None)  # Configure CSP according to your needs
 
-#Error Handling
+
+# Error Handling
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html"), 404
