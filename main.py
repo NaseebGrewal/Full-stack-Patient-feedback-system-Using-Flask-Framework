@@ -43,6 +43,12 @@ def get_feedback_data_from_form(form):
     return feedback_data
 
 
+# Define the route for the feedback error page
+@app.route("/feedback_error")
+def feedback_error():
+    print("Testing error page")
+    return "Testing error page"
+
 # Define the route for the feedback form
 @app.route("/feedback", methods=["GET", "POST"])
 def feedback():
