@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 import redis
 from flask import Flask, redirect, render_template, request, session, url_for
 from pymongo import MongoClient
-
+from mongo_db_client import client
 # Use environment variables for configuration
 redis_host = os.getenv("REDIS_HOST", "localhost")
 redis_port = int(os.getenv("REDIS_PORT"))
@@ -15,14 +15,9 @@ redis_password = os.getenv("REDIS_PASSWORD")
 # Connect to Redis
 redis_client = redis.Redis(host=redis_host, port=redis_port, password=redis_password, db=0)
 
-# Get MongoDB credentials from environment variables
-mongodb_user = os.getenv("MONGODB_USER")
-mongodb_password = quote_plus(os.getenv("MONGODB_PASSWORD"))
-mongodb_host = os.getenv("MONGODB_HOST")
-
-# Connect to MongoDB
-client = MongoClient(f"mongodb+srv://{mongodb_user}:{mongodb_password}@{mongodb_host}/")
-db = client["Naseeb"]
+# connect to MongoDB using the client from mongo_db_client.py
+MONGODB_CLIENT = client
+db = MONGODB_CLIENT["Naseeb"]
 collection = db["Feedback"]
 
 app = Flask(__name__)
