@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import redis
 from flask import Flask, redirect, render_template, request, session, url_for
-from pymongo import MongoClient
+from mongo_db_client import client
+
 
 # Use 'agg' backend for matplotlib to work without a display server
 matplotlib.use("agg")
@@ -22,22 +23,19 @@ redis_password = None
 
 # Connect to Redis
 redis_client = redis.Redis(host=redis_host, port=redis_port, password=redis_password, db=0)
-
 # MONGODB DATABASE CONNECTION
 #  ----------------------------------------------------------------
-# Create a MongoClient instance
-# mongobd_password = os.getenv("mongodb_password")
-# client = MongoClient(f"mongodb+srv://ngrewal240:{mongobd_password}@cluster1.1bdcxqo.mongodb.net/")
-password = quote_plus("Ng@.1234567890")
-client = MongoClient(f"mongodb+srv://ngrewal240:{password}@cluster1.1bdcxqo.mongodb.net/")
+
+MONGODB_CLIENT = client
+
+
 
 # Select the database and collection
-db = client["Naseeb"]
+db = MONGODB_CLIENT["Naseeb"]
 collection = db["Feedback"]
 #  ----------------------------------------------------------------
 
 app = Flask(__name__)
-
 # Define the route for the feedback form
 #  -----------------------------------------------------------------
 @app.route("/feedback", methods=["GET", "POST"])
@@ -387,7 +385,17 @@ def overall_bargraphs():
         ratings_counts = [[] for _ in range(len(star_ratings))]
         yes_no_counts = [[], []]
         x_labels = []
-
+        rating_cols = [
+        "overall_exp",
+        "doc_care",
+        "doc_comm",
+        "nurse_care",
+        "food_quality",
+        "accommodation",
+        "sanitization",
+        "safety",
+        "staff_support",
+    ]
         # Count the number of occurrences for each column and star rating
         for col in rating_cols:
             for i, star in enumerate(star_ratings):
