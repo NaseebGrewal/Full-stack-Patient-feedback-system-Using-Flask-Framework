@@ -107,8 +107,50 @@ Full_stack_Patient_feedback_system_Using_Flask_Framework/
 
 ## Usage
 
-1. **Run the Flask app**:
+1. **Step to Run the Flask app**:
    Start the application by running the following command:
+
+  
+   Make sure MongoDB connection is established.
+   Create a free MongoDB account. Copy your connection key and set the env variable for password.
+   connection string looks like this:
+   ```bash
+   "mongodb+srv://{encoded_username}:{encoded_password}@cluster1.somestring.mongodb.net/?appName=yourClusterName"
+   ```
+   Set the envionment variable for MongoDB and Redis in your .env file and load them using python-dotenv
+
+   ```bash
+   from dotenv import load_dotenv
+   # Load the .env file
+   load_dotenv()
+   ```
+
+   ## Make sure Redis Connection is established.
+   
+   ## (For MAC)
+
+   ### list if redis is running already
+   ```bash
+   brew services list
+   ```
+   ### start redis server
+   ```bash
+   brew services start redis
+   ```
+   ### stop redis server
+   ```bash
+   brew services stop redis
+   ```
+
+   Finally after successfully connecting to both Mongo DB and Redis 
+
+   install all requirements from requirements.txt
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   Run the Flask Server
 
    ```bash
    python app.py

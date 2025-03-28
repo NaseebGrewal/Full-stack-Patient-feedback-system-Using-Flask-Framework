@@ -6,29 +6,40 @@ from urllib.parse import quote_plus
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import redis
 from flask import Flask, redirect, render_template, request, session, url_for
-from mongo_db_client import client
+from db_clients import create_mongo_db_client, create_redis_client
 
 
 # Use 'agg' backend for matplotlib to work without a display server
 matplotlib.use("agg")
 
-# REDIS DATABASE CONNECTION
-# ---------------------------------------------------------------
-# Replace the values with your own Redis configuration
-redis_host = "localhost"
-redis_port = 6379
-redis_password = None
 
-# Connect to Redis
-redis_client = redis.Redis(host=redis_host, port=redis_port, password=redis_password, db=0)
-# MONGODB DATABASE CONNECTION
+# DATABASE CONNECTION
+# ---------------------------------------------------------------
+def set_db_clients()-> tuple:
+    # get mongo_db client
+    username = os.getenv('USER_NAME')
+    password = os.getenv('PASSWORD_MONGODB')  
+    MongoDB_Client = create_mongo_db_client(username, password)
+
+    # get redis client
+    # Use environment variables for configuration
+    redis_host = os.getenv("REDIS_HOST", "localhost")
+    redis_port = int(os.getenv("REDIS_PORT"))
+    redis_password = None
+    redis_client = create_redis_client(redis_host=redis_host, redis_port=redis_port, redis_password=redis_password)
+
+    return MongoDB_Client, redis_client
+
+# ---------------------------------------------------------------
+# MONGODB REDIS DATABASE CONNECTION
 #  ----------------------------------------------------------------
 
-MONGODB_CLIENT = client
+MONGODB_CLIENT,redis_client = set_db_clients()
 
-
+# ---------------------------------------------------------------
+# Define the MongoDB database & collection 
+#  ----------------------------------------------------------------
 
 # Select the database and collection
 db = MONGODB_CLIENT["Naseeb"]
@@ -36,6 +47,8 @@ collection = db["Feedback"]
 #  ----------------------------------------------------------------
 
 app = Flask(__name__)
+
+app.secret_key = os.urandom(24)
 # Define the route for the feedback form
 #  -----------------------------------------------------------------
 @app.route("/feedback", methods=["GET", "POST"])
