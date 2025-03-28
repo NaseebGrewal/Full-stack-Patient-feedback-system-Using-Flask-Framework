@@ -34,7 +34,7 @@ def set_db_clients() -> tuple:
 
     # Retrieve Redis configuration from environment variables (with defaults)
     redis_host = os.getenv("REDIS_HOST", "localhost")
-    redis_port = int(os.getenv("REDIS_PORT", 6379))
+    redis_port = int(os.getenv("REDIS_PORT"))
     redis_password = None  # Update if a Redis password is required
     redis_client = create_redis_client(redis_host=redis_host, redis_port=redis_port, redis_password=redis_password)
 
