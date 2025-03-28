@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 import redis
 from flask import Flask, redirect, render_template, request, session, url_for
 from pymongo import MongoClient
-from mongo_db_client import client
+from db_clients import client
 # Use environment variables for configuration
 redis_host = os.getenv("REDIS_HOST", "localhost")
 redis_port = int(os.getenv("REDIS_PORT"))
