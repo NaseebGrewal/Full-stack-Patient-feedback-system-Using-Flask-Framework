@@ -8,12 +8,12 @@ and generates various charts (bar graphs and pie charts) for analysis.
 import json
 import os
 import re
-from urllib.parse import quote_plus
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from flask import Flask, redirect, render_template, request, session, url_for
+
 from db_clients import create_mongo_db_client, create_redis_client
 
 # Configure matplotlib to use a backend suitable for environments without a display server.
@@ -334,6 +334,7 @@ def piecharts():
         """
         Generate pie charts for yes/no questions.
         """
+
         def count_yes_no(question):
             yes_count = collection.count_documents({question: "yes"})
             no_count = collection.count_documents({question: "no"})
@@ -468,8 +469,9 @@ def overall_bargraphs():
             plt.xticks(range(len(sorted_counts[i])), sorted_labels[i], rotation="vertical")
             plt.tight_layout()
             for bar in bars:
-                plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), int(bar.get_height()),
-                         ha="center", va="bottom")
+                plt.text(
+                    bar.get_x() + bar.get_width() / 2, bar.get_height(), int(bar.get_height()), ha="center", va="bottom"
+                )
             if not os.path.exists("static"):
                 os.makedirs("static")
             image_path = f"static/bargraph_{star}_star_ratings.png"
@@ -481,17 +483,20 @@ def overall_bargraphs():
         for i in range(2):
             plt.clf()
             fig, ax = plt.subplots(figsize=(10, 6))
-            bars = plt.bar(range(len(sorted_counts[i + len(star_ratings)])),
-                           sorted_counts[i + len(star_ratings)])
+            bars = plt.bar(range(len(sorted_counts[i + len(star_ratings)])), sorted_counts[i + len(star_ratings)])
             plt.xlabel("Column")
             plt.ylabel("Count")
             plt.title("Count of Yes/No Responses by Column")
-            plt.xticks(range(len(sorted_counts[i + len(star_ratings)])),
-                       sorted_labels[i + len(star_ratings)], rotation="vertical")
+            plt.xticks(
+                range(len(sorted_counts[i + len(star_ratings)])),
+                sorted_labels[i + len(star_ratings)],
+                rotation="vertical",
+            )
             plt.tight_layout()
             for bar in bars:
-                plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), int(bar.get_height()),
-                         ha="center", va="bottom")
+                plt.text(
+                    bar.get_x() + bar.get_width() / 2, bar.get_height(), int(bar.get_height()), ha="center", va="bottom"
+                )
             path_img = "static/bargraph_yes_no_responses.png" if i == 0 else "static/bargraph_no_responses.png"
             plt.savefig(path_img)
             plt.close()
@@ -546,9 +551,11 @@ def process_form():
             # Add additional fields if needed
         }
         updated_count = update_entry(patient_id, new_data)
-        message = (f"Entry with Patient ID {patient_id} successfully updated."
-                   if updated_count == 1 else
-                   f"Failed to update entry with Patient ID {patient_id}.")
+        message = (
+            f"Entry with Patient ID {patient_id} successfully updated."
+            if updated_count == 1
+            else f"Failed to update entry with Patient ID {patient_id}."
+        )
         return render_template("manage.html", message=message)
     elif "delete" in request.form:
         if not any(request.form.values()):
@@ -556,9 +563,11 @@ def process_form():
             return render_template("manage.html", message=message)
         patient_id = int(request.form["patient_id"])
         deleted_count = delete_entry(patient_id)
-        message = (f"Entry with Patient ID {patient_id} successfully deleted."
-                   if deleted_count == 1 else
-                   f"Failed to delete entry with Patient ID {patient_id}.")
+        message = (
+            f"Entry with Patient ID {patient_id} successfully deleted."
+            if deleted_count == 1
+            else f"Failed to delete entry with Patient ID {patient_id}."
+        )
         return render_template("manage.html", message=message)
     else:
         return render_template("manage.html")
