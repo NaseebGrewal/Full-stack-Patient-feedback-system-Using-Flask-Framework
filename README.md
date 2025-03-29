@@ -60,6 +60,8 @@ Install the necessary dependencies by running the following:
 pip install -r requirements-dev.txt   # It will install all the dependencies needed for the project 
 ```
 
+### Go to Usage section [Usage](#usage) to set up the Flask Server and Run application properly
+
 ---
 
 ## Project Structure
