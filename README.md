@@ -13,7 +13,6 @@ This repository contains the implementation of a **Full Stack Patient Feedback S
 6. [Testing](#testing)
 7. [Contributing](#contributing)
 8. [License](#license)
-9. [Acknowledgements](#acknowledgements)
 
 ---
 
