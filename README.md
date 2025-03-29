@@ -60,14 +60,6 @@ Install the necessary dependencies by running the following:
 pip install -r requirements-dev.txt   # It will install all the dependencies needed for the project 
 ```
 
-### To execute the project locally
-
-### Step 1: Clone the Repository on your local system.
- 
-### Step 2: Install the required dependencies using "pip install -r requirements-dev.txt"
-
-### Step 3: Execute the app.py file.
-
 ---
 
 ## Project Structure
