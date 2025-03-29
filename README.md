@@ -57,7 +57,7 @@ venv\Scripts\activate     # For Windows
 Install the necessary dependencies by running the following:
 
 ```bash
-pip install -r requirements-dev.txt   # For development dependencies
+pip install -r requirements-dev.txt   # It will install all the dependencies needed for the project 
 ```
 
 ### To execute the project locally
