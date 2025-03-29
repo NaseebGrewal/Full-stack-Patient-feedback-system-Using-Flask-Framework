@@ -57,14 +57,7 @@ venv\Scripts\activate     # For Windows
 Install the necessary dependencies by running the following:
 
 ```bash
-pip install -r requirements.txt
-```
-
-If you're working on development or testing, you can install dependencies from the `requirements-dev.txt` or `requirements-ci.txt`.
-
-```bash
 pip install -r requirements-dev.txt   # For development dependencies
-pip install -r requirements-ci.txt    # For CI-specific dependencies
 ```
 
 ### To execute the project locally
