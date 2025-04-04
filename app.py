@@ -12,7 +12,7 @@ import re
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from fastapi import FastAPI, Request, Form, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -22,6 +22,7 @@ from db_clients import create_mongo_db_client, create_redis_client
 
 # Configure matplotlib to use a backend suitable for environments without a display server.
 matplotlib.use("agg")
+
 
 # ----------------------------
 # Database Client Initialization
@@ -37,11 +38,10 @@ def set_db_clients() -> tuple:
     redis_host = os.getenv("REDIS_HOST", "localhost")
     redis_port = int(os.getenv("REDIS_PORT"))
     redis_password = None  # Update if a Redis password is required
-    redis_client = create_redis_client(
-        redis_host=redis_host, redis_port=redis_port, redis_password=redis_password
-    )
+    redis_client = create_redis_client(redis_host=redis_host, redis_port=redis_port, redis_password=redis_password)
 
     return MongoDB_Client, redis_client
+
 
 MONGODB_CLIENT, redis_client = set_db_clients()
 db = MONGODB_CLIENT["Naseeb"]
@@ -57,6 +57,7 @@ app.add_middleware(SessionMiddleware, secret_key=os.urandom(24).hex())
 # Mount the "static" directory to serve images and other static files.
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
 
 # ----------------------------
 # Routes for Feedback Handling
@@ -199,6 +200,7 @@ async def bargraphs(request: Request):
 
     # Generate a stacked bar graph for yes/no responses.
     yes_no_paths = []
+
     def bar_graph_yes_no():
         yes_no_cols = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
         counts_yes = [0] * len(yes_no_cols)
@@ -291,6 +293,7 @@ async def piecharts(request: Request):
         return total
 
     yes_no_paths = []
+
     def piechart_yes_no():
         def count_yes_no(question):
             yes_count = collection.count_documents({question: "yes"})
@@ -343,6 +346,7 @@ async def overall_bargraphs(request: Request):
     """
     Generate overall bar graphs combining star ratings and yes/no responses.
     """
+
     def save_bar_graphs_():
         star_ratings = [1, 2, 3, 4, 5]
         rating_cols = [
@@ -400,8 +404,9 @@ async def overall_bargraphs(request: Request):
             plt.xticks(range(len(sorted_counts[i])), sorted_labels[i], rotation="vertical")
             plt.tight_layout()
             for bar in bars:
-                plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), int(bar.get_height()), 
-                         ha="center", va="bottom")
+                plt.text(
+                    bar.get_x() + bar.get_width() / 2, bar.get_height(), int(bar.get_height()), ha="center", va="bottom"
+                )
             if not os.path.exists("static"):
                 os.makedirs("static")
             image_path = f"static/bargraph_{star}_star_ratings.png"
@@ -412,17 +417,20 @@ async def overall_bargraphs(request: Request):
         # Create bar graphs for yes/no responses.
         for i in range(2):
             plt.figure(figsize=(10, 6))
-            bars = plt.bar(range(len(sorted_counts[i + len(star_ratings)])),
-                           sorted_counts[i + len(star_ratings)])
+            bars = plt.bar(range(len(sorted_counts[i + len(star_ratings)])), sorted_counts[i + len(star_ratings)])
             plt.xlabel("Column")
             plt.ylabel("Count")
             plt.title("Count of Yes/No Responses by Column")
-            plt.xticks(range(len(sorted_counts[i + len(star_ratings)])),
-                       sorted_labels[i + len(star_ratings)], rotation="vertical")
+            plt.xticks(
+                range(len(sorted_counts[i + len(star_ratings)])),
+                sorted_labels[i + len(star_ratings)],
+                rotation="vertical",
+            )
             plt.tight_layout()
             for bar in bars:
-                plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), int(bar.get_height()),
-                         ha="center", va="bottom")
+                plt.text(
+                    bar.get_x() + bar.get_width() / 2, bar.get_height(), int(bar.get_height()), ha="center", va="bottom"
+                )
             path_img = "static/bargraph_yes_responses.png" if i == 0 else "static/bargraph_no_responses.png"
             plt.savefig(path_img)
             plt.close()
@@ -460,7 +468,9 @@ async def manage_post(request: Request):
     if "show" in form:
         entries = retrieve_entries(form)
         search_criteria = get_search_criteria(form)
-        return templates.TemplateResponse("manage.html", {"request": request, "search_criteria": search_criteria, "entries": entries})
+        return templates.TemplateResponse(
+            "manage.html", {"request": request, "search_criteria": search_criteria, "entries": entries}
+        )
     elif "update" in form:
         if not any(form.values()):
             message = "Invalid operation: Nothing to update."
@@ -476,9 +486,11 @@ async def manage_post(request: Request):
             # Add additional fields if needed.
         }
         updated_count = update_entry(patient_id, new_data)
-        message = (f"Entry with Patient ID {patient_id} successfully updated."
-                   if updated_count == 1
-                   else f"Failed to update entry with Patient ID {patient_id}.")
+        message = (
+            f"Entry with Patient ID {patient_id} successfully updated."
+            if updated_count == 1
+            else f"Failed to update entry with Patient ID {patient_id}."
+        )
         return templates.TemplateResponse("manage.html", {"request": request, "message": message})
     elif "delete" in form:
         if not any(form.values()):
@@ -489,9 +501,11 @@ async def manage_post(request: Request):
         except (TypeError, ValueError):
             raise HTTPException(status_code=400, detail="Invalid patient ID.")
         deleted_count = delete_entry(patient_id)
-        message = (f"Entry with Patient ID {patient_id} successfully deleted."
-                   if deleted_count == 1
-                   else f"Failed to delete entry with Patient ID {patient_id}.")
+        message = (
+            f"Entry with Patient ID {patient_id} successfully deleted."
+            if deleted_count == 1
+            else f"Failed to delete entry with Patient ID {patient_id}."
+        )
         return templates.TemplateResponse("manage.html", {"request": request, "message": message})
     else:
         return templates.TemplateResponse("manage.html", {"request": request})
@@ -564,6 +578,5 @@ def delete_entry(patient_id) -> int:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("app:app", host="0.0.0.0", port=5002, reload=True)
-
-
