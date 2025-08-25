@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+        h1{
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+    </style>
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <h1>{{ title }}</h1>
+    
+    {% for piechart in piecharts %}
+      <img src="/static/{{ piechart }}" alt="Pie Chart">
+    {% endfor %}
+
+    {% if yes_no %}
+      {% for piechart in yes_no %}
+        <img src="/static/{{ piechart }}" alt="Yes/No Pie Chart">
+      {% endfor %}
+    {% endif %}
+  </body>
+</html>

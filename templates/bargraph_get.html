@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+        h1 {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+    </style>
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <h1>{{ title }}</h1>
+    {% for bargraph in bargraphs %}
+      <img src="/static/{{ bargraph.split('/')[-1] }}" alt="Bar Graph">
+    {% endfor %}
+    {% if yes_no %}
+      <img src="/static/{{ yes_no.split('/')[-1] }}" alt="Yes/No Bar Graph">
+    {% endif %}
+  </body>
+</html>

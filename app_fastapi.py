@@ -51,6 +51,9 @@ collection = db["Feedback"]
 # FastAPI Application Setup
 # ----------------------------
 app = FastAPI()
+
+# Mount the static files and give it the name "static"
+app.mount("/static", StaticFiles(directory="static"), name="static")
 # Use a secret key for session management. (The secret should be kept safe.)
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24).hex())
 
@@ -62,7 +65,7 @@ templates = Jinja2Templates(directory="templates")
 # ----------------------------
 # Routes for Feedback Handling
 # ----------------------------
-@app.get("/feedback", response_class=HTMLResponse)
+@app.get("/feedback", response_class=HTMLResponse, name="feedback")
 async def get_feedback(request: Request):
     """
     Render the feedback form.
@@ -125,19 +128,19 @@ async def post_feedback(request: Request):
     return RedirectResponse(url="/feedback_thankyou", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@app.get("/feedback_thankyou", response_class=HTMLResponse)
+@app.get("/feedback_thankyou", response_class=HTMLResponse, name="feedback_thankyou")
 async def feedback_thankyou(request: Request):
     """Render the thank-you page after successful submission."""
     return templates.TemplateResponse("feedback_thankyou.html", {"request": request})
 
 
-@app.get("/feedback_error", response_class=HTMLResponse)
+@app.get("/feedback_error", response_class=HTMLResponse, name="feedback_error")
 async def feedback_error(request: Request):
     """Render an error page if feedback has already been submitted."""
     return templates.TemplateResponse("feedback_error.html", {"request": request})
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, name="home")
 async def home(request: Request):
     """Render the home page."""
     return templates.TemplateResponse("home.html", {"request": request})
@@ -146,7 +149,108 @@ async def home(request: Request):
 # ----------------------------
 # Routes for Graph Generation
 # ----------------------------
-@app.get("/bargraphs", response_class=HTMLResponse)
+# @app.get("/bargraphs", response_class=HTMLResponse, name="bargraphs")
+# async def bargraphs(request: Request):
+#     """
+#     Generate bar graphs for rating and yes/no responses and display them.
+#     """
+#     rating_cols = [
+#         "overall_exp",
+#         "doc_care",
+#         "doc_comm",
+#         "nurse_care",
+#         "food_quality",
+#         "accommodation",
+#         "sanitization",
+#         "safety",
+#         "staff_support",
+#     ]
+#     bargraph_paths = []
+
+#     def bar_graph_rating(col_name):
+#         ratings = collection.find({}, {"_id": 0, col_name: 1})
+#         counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+
+#         for rating in ratings:
+#             star = rating.get(col_name)
+#             if star in counts:
+#                 counts[star] += 1
+
+#         x_labels = ["1 Star", "2 Star", "3 Star", "4 Star", "5 Star"]
+#         y_values = [counts[1], counts[2], counts[3], counts[4], counts[5]]
+
+#         plt.figure()
+#         plt.bar(x_labels, y_values)
+#         for i, count in enumerate(y_values):
+#             plt.text(i, count, str(count), ha="center", va="bottom")
+#         plt.title(col_name)
+#         plt.xlabel("Rating")
+#         plt.ylabel("Number of Patients")
+
+#         if not os.path.exists("static"):
+#             os.makedirs("static")
+#         image_path = f"static/bar_graph_{col_name}.png"
+#         plt.savefig(image_path)
+#         plt.close()
+#         return sum(y_values), image_path
+
+#     total_ratings = 0
+#     # Generate bar graphs for each rating column.
+#     for col in rating_cols:
+#         count, path = bar_graph_rating(col)
+#         total_ratings += count
+#         bargraph_paths.append(path)
+
+#     # Generate a stacked bar graph for yes/no responses.
+#     yes_no_paths = []
+
+#     def bar_graph_yes_no():
+#         yes_no_cols = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
+#         counts_yes = [0] * len(yes_no_cols)
+#         counts_no = [0] * len(yes_no_cols)
+
+#         for doc in collection.find():
+#             for i, col in enumerate(yes_no_cols):
+#                 if doc.get(col) == "yes":
+#                     counts_yes[i] += 1
+#                 elif doc.get(col) == "no":
+#                     counts_no[i] += 1
+
+#         plt.figure()
+#         x_indices = range(len(yes_no_cols))
+#         plt.bar(x_indices, counts_yes, label="Yes")
+#         plt.bar(x_indices, counts_no, bottom=counts_yes, label="No")
+#         for i, count in enumerate(counts_yes):
+#             plt.text(i, count, str(count), ha="center", va="bottom")
+#         for i, count in enumerate(counts_no):
+#             plt.text(i, count + counts_yes[i], str(count), ha="center", va="bottom")
+#         plt.title("Responses to Yes/No Questions")
+#         plt.xlabel("Question")
+#         plt.ylabel("Count")
+#         plt.xticks(x_indices, yes_no_cols)
+#         plt.legend()
+#         plt.gcf().set_size_inches(15, 8)
+
+#         if not os.path.exists("static"):
+#             os.makedirs("static")
+#         image_path = "static/bar_graph_yes_no.png"
+#         plt.savefig(image_path, dpi=100, bbox_inches="tight")
+#         plt.close()
+#         yes_no_paths.append(image_path)
+
+#     bar_graph_yes_no()
+
+#     title = f"Bar Graph Analysis (Total Ratings = {total_ratings})"
+#     # Pass the first few image paths for demonstration.
+#     context = {
+#         "request": request,
+#         "title": title,
+#         "bargraphs": bargraph_paths,
+#         "yes_no": yes_no_paths[0] if yes_no_paths else "",
+#     }
+#     return templates.TemplateResponse("bargraph.html", context)
+
+@app.get("/bargraphs", response_class=HTMLResponse, name="bargraphs")
 async def bargraphs(request: Request):
     """
     Generate bar graphs for rating and yes/no responses and display them.
@@ -184,11 +288,15 @@ async def bargraphs(request: Request):
         plt.xlabel("Rating")
         plt.ylabel("Number of Patients")
 
+        # Ensure the "static" folder exists
         if not os.path.exists("static"):
             os.makedirs("static")
+
+        # Save the graph image in the static directory
         image_path = f"static/bar_graph_{col_name}.png"
         plt.savefig(image_path)
         plt.close()
+
         return sum(y_values), image_path
 
     total_ratings = 0
@@ -245,10 +353,102 @@ async def bargraphs(request: Request):
         "bargraphs": bargraph_paths,
         "yes_no": yes_no_paths[0] if yes_no_paths else "",
     }
-    return templates.TemplateResponse("bargraph.html", context)
+    return templates.TemplateResponse("bargraph_get.html", context)
 
 
-@app.get("/piecharts", response_class=HTMLResponse)
+# @app.get("/piecharts", response_class=HTMLResponse, name="piecharts")
+# async def piecharts(request: Request):
+#     """
+#     Generate pie charts for rating and yes/no responses and display them.
+#     """
+#     rating_cols = [
+#         "overall_exp",
+#         "doc_care",
+#         "doc_comm",
+#         "nurse_care",
+#         "food_quality",
+#         "accommodation",
+#         "sanitization",
+#         "safety",
+#         "staff_support",
+#     ]
+#     piechart_paths = []
+
+#     def piechart_rating(col_name):
+#         one_star = collection.count_documents({col_name: 1})
+#         two_star = collection.count_documents({col_name: 2})
+#         three_star = collection.count_documents({col_name: 3})
+#         four_star = collection.count_documents({col_name: 4})
+#         five_star = collection.count_documents({col_name: 5})
+#         total = one_star + two_star + three_star + four_star + five_star
+
+#         labels = ["1 Star", "2 Star", "3 Star", "4 Star", "5 Star"]
+#         sizes = [one_star, two_star, three_star, four_star, five_star]
+#         plt.figure()
+#         patches, _ = plt.pie(sizes, startangle=90)
+#         plt.axis("equal")
+#         plt.title(f"{col_name} Rating")
+#         percentages = [f"{size} ({size / total * 100:.1f}%)" if total > 0 else "0" for size in sizes]
+#         legend_labels = [f"{label}\n{perc}" for label, perc in zip(labels, percentages)]
+#         plt.legend(patches, legend_labels, title="Star Ratings")
+
+#         if not os.path.exists("static"):
+#             os.makedirs("static")
+#         image_path = f"static/piechart_{col_name}.png"
+#         plt.savefig(image_path)
+#         plt.close()
+#         piechart_paths.append(image_path)
+#         return total
+
+#     yes_no_paths = []
+
+#     def piechart_yes_no():
+#         def count_yes_no(question):
+#             yes_count = collection.count_documents({question: "yes"})
+#             no_count = collection.count_documents({question: "no"})
+#             return yes_count, no_count
+
+#         def plot_pie(question):
+#             yes_count, no_count = count_yes_no(question)
+#             total_count = yes_count + no_count if (yes_count + no_count) > 0 else 1
+#             labels = ["Yes", "No"]
+#             values = [yes_count, no_count]
+#             percentages = [f"{count} ({count / total_count * 100:.1f}%)" for count in values]
+#             plt.figure()
+#             patches, _ = plt.pie(values, startangle=90)
+#             plt.axis("equal")
+#             plt.title(question)
+#             legend_labels = [f"{label}\n{perc}" for label, perc in zip(labels, percentages)]
+#             plt.legend(patches, legend_labels)
+#             if not os.path.exists("static"):
+#                 os.makedirs("static")
+#             image_path = f"static/piechart_yes_no_{question}.png"
+#             plt.savefig(image_path)
+#             plt.close()
+#             yes_no_paths.append(image_path)
+
+#         questions = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
+#         for question in questions:
+#             plot_pie(question)
+
+#     total_ratings = 0
+#     count_val = 0
+#     for col in rating_cols:
+#         total_ratings += piechart_rating(col)
+#         count_val += 1
+#     piechart_yes_no()
+#     average_ratings = total_ratings // count_val if count_val else 0
+
+#     title = f"Pie Chart Analysis (Average Total Ratings = {average_ratings})"
+#     context = {
+#         "request": request,
+#         "title": title,
+#         "piecharts": piechart_paths,
+#         "yes_no": yes_no_paths,
+#     }
+#     return templates.TemplateResponse("piechart.html", context)
+
+@app.get("/piecharts", response_class=HTMLResponse, name="piecharts")
 async def piecharts(request: Request):
     """
     Generate pie charts for rating and yes/no responses and display them.
@@ -284,12 +484,17 @@ async def piecharts(request: Request):
         legend_labels = [f"{label}\n{perc}" for label, perc in zip(labels, percentages)]
         plt.legend(patches, legend_labels, title="Star Ratings")
 
+        # Ensure the "static" folder exists
         if not os.path.exists("static"):
             os.makedirs("static")
+        
+        # Save the pie chart image in the static folder
         image_path = f"static/piechart_{col_name}.png"
         plt.savefig(image_path)
         plt.close()
-        piechart_paths.append(image_path)
+
+        # Append relative path (for use in the template)
+        piechart_paths.append(image_path.split("static/")[-1])  # Save relative path
         return total
 
     yes_no_paths = []
@@ -312,12 +517,17 @@ async def piecharts(request: Request):
             plt.title(question)
             legend_labels = [f"{label}\n{perc}" for label, perc in zip(labels, percentages)]
             plt.legend(patches, legend_labels)
+
+            # Ensure the "static" folder exists
             if not os.path.exists("static"):
                 os.makedirs("static")
+
             image_path = f"static/piechart_yes_no_{question}.png"
             plt.savefig(image_path)
             plt.close()
-            yes_no_paths.append(image_path)
+
+            # Append relative path (for use in the template)
+            yes_no_paths.append(image_path.split("static/")[-1])  # Save relative path
 
         questions = ["doc_involvement", "nurse_promptness", "cleanliness", "timely_info", "med_info"]
         for question in questions:
@@ -338,10 +548,10 @@ async def piecharts(request: Request):
         "piecharts": piechart_paths,
         "yes_no": yes_no_paths,
     }
-    return templates.TemplateResponse("piechart.html", context)
+    return templates.TemplateResponse("piechart_get.html", context)
 
 
-@app.get("/overall_bargraphs", response_class=HTMLResponse)
+@app.get("/overall_bargraphs", response_class=HTMLResponse, name="overall_bargraphs")
 async def overall_bargraphs(request: Request):
     """
     Generate overall bar graphs combining star ratings and yes/no responses.
@@ -412,7 +622,7 @@ async def overall_bargraphs(request: Request):
             image_path = f"static/bargraph_{star}_star_ratings.png"
             plt.savefig(image_path)
             plt.close()
-            image_paths.append(image_path)
+            image_paths.append(image_path.split("static/")[-1])  # Save relative path
 
         # Create bar graphs for yes/no responses.
         for i in range(2):
@@ -434,7 +644,7 @@ async def overall_bargraphs(request: Request):
             path_img = "static/bargraph_yes_responses.png" if i == 0 else "static/bargraph_no_responses.png"
             plt.savefig(path_img)
             plt.close()
-            image_paths.append(path_img)
+            image_paths.append(path_img.split("static/")[-1])  # Save relative path
 
         return image_paths
 
@@ -445,21 +655,21 @@ async def overall_bargraphs(request: Request):
         "title": title,
         "bargraphs": image_paths,
     }
-    return templates.TemplateResponse("overall_bargraph.html", context)
+    return templates.TemplateResponse("overall_bargraph_get.html", context)
 
 
 # ----------------------------
 # Routes for Data Management
 # ----------------------------
-@app.get("/manage", response_class=HTMLResponse)
+@app.get("/manage", response_class=HTMLResponse, name="manage")
 async def manage_get(request: Request):
     """
     Render the management page for administrative operations.
     """
-    return templates.TemplateResponse("home_manage.html", {"request": request})
+    return templates.TemplateResponse("manage_get.html", {"request": request})
 
 
-@app.post("/manage", response_class=HTMLResponse)
+@app.post("/manage")
 async def manage_post(request: Request):
     """
     Process management form submissions for showing, updating, or deleting entries.
@@ -469,16 +679,17 @@ async def manage_post(request: Request):
         entries = retrieve_entries(form)
         search_criteria = get_search_criteria(form)
         return templates.TemplateResponse(
-            "manage.html", {"request": request, "search_criteria": search_criteria, "entries": entries}
+            "manage_post.html", {"request": request, "search_criteria": search_criteria, "entries": entries}
         )
     elif "update" in form:
         if not any(form.values()):
             message = "Invalid operation: Nothing to update."
-            return templates.TemplateResponse("manage.html", {"request": request, "message": message})
+            return templates.TemplateResponse("manage_post.html", {"request": request, "message": message})
         try:
             patient_id = int(form.get("patient_id"))
         except (TypeError, ValueError):
-            raise HTTPException(status_code=400, detail="Invalid patient ID.")
+            pass
+            # raise HTTPException(status_code=400, detail="Invalid patient ID.")
         new_data = {
             "name": form.get("name"),
             "age": form.get("age"),
@@ -491,24 +702,25 @@ async def manage_post(request: Request):
             if updated_count == 1
             else f"Failed to update entry with Patient ID {patient_id}."
         )
-        return templates.TemplateResponse("manage.html", {"request": request, "message": message})
+        return templates.TemplateResponse("manage_post.html", {"request": request, "message": message})
     elif "delete" in form:
         if not any(form.values()):
             message = "Invalid operation: Nothing to delete."
-            return templates.TemplateResponse("manage.html", {"request": request, "message": message})
+            return templates.TemplateResponse("manage_post.html", {"request": request, "message": message})
         try:
             patient_id = int(form.get("patient_id"))
         except (TypeError, ValueError):
-            raise HTTPException(status_code=400, detail="Invalid patient ID.")
+            pass
+            # raise HTTPException(status_code=400, detail="Invalid patient ID.")
         deleted_count = delete_entry(patient_id)
         message = (
             f"Entry with Patient ID {patient_id} successfully deleted."
             if deleted_count == 1
             else f"Failed to delete entry with Patient ID {patient_id}."
         )
-        return templates.TemplateResponse("manage.html", {"request": request, "message": message})
+        return templates.TemplateResponse("manage_post.html", {"request": request, "message": message})
     else:
-        return templates.TemplateResponse("manage.html", {"request": request})
+        return templates.TemplateResponse("manage_post.html", {"request": request})
 
 
 def get_search_criteria(form_data) -> str:
@@ -579,4 +791,4 @@ def delete_entry(patient_id) -> int:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("app:app", host="0.0.0.0", port=5002, reload=True)
+    uvicorn.run("app_fastapi:app", host="0.0.0.0", port=5002, reload=True)

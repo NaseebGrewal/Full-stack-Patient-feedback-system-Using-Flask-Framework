@@ -2,13 +2,13 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}My Website{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" >
-  <!-- Add Bootstrap CSS link here -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Website{% endblock %}</title>
+    <link rel="stylesheet" href="{{ request.url_for('static', path='css/style.css') }}">
+    <!-- Add Bootstrap CSS link here -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
   <title>Feedback Form</title>
   <style>
@@ -127,67 +127,7 @@
 
 
   </form>
-  {% if search_criteria %}
-    <h2>Search Criteria:</h2>
-    <p>{{ search_criteria }}</p>
-    {% endif %}
 
-  {% if entries %}
-    <h2>Entries:</h2>
-    <table>
-      <tr>
-        <th>Row No.</th>
-        <th>Patient ID</th>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Email</th>
-        <th>Date</th>
-        <th>Overall Experience</th>
-        <th>Doctor Care</th>
-        <th>Doctor Communication</th>
-        <th>Nurse Care</th>
-        <th>Food Quality</th>
-        <th>Accommodation</th>
-        <th>Sanitization</th>
-        <th>Safety</th>
-        <th>Staff Support</th>
-        <th>Doctor Involvement</th>
-        <th>Nurse Promptness</th>
-        <th>Cleanliness</th>
-        <th>Timely Information</th>
-        <th>Medicine Information</th>
-        <th>Other Comments</th>
-      </tr>
-      {% for entry in entries %}
-      <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ entry.patient_id }}</td>
-        <td>{{ entry.name }}</td>
-        <td>{{ entry.age }}</td>
-        <td>{{ entry.email }}</td>
-        <td>{{ entry.date }}</td>
-        <td>{{ entry.overall_exp }}</td>
-        <td>{{ entry.doc_care }}</td>
-        <td>{{ entry.doc_comm }}</td>
-        <td>{{ entry.nurse_care }}</td>
-        <td>{{ entry.food_quality }}</td>
-        <td>{{ entry.accommodation }}</td>
-        <td>{{ entry.sanitization }}</td>
-        <td>{{ entry.safety }}</td>
-        <td>{{ entry.staff_support }}</td>
-        <td>{{ entry.doc_involvement }}</td>
-        <td>{{ entry.nurse_promptness }}</td>
-        <td>{{ entry.cleanliness }}</td>
-        <td>{{ entry.timely_info }}</td>
-        <td>{{ entry.med_info }}</td>
-        <td>{{ entry.other_comments }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-  {% endif %}
 
-  {% if message %}
-    <p>{{ message }}</p>
-  {% endif %}
 </body>
 </html>
