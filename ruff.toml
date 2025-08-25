@@ -1,4 +1,13 @@
+# Common settings applied to both linting and formatting
 line-length = 120
+indent-width = 4           # Default is 4 spaces :contentReference[oaicite:0]{index=0}
+target-version = "py39"    # Modify based on your project's minimum Python version :contentReference[oaicite:1]{index=1}
+unsafe-fixes = false       # Disable unsafe autofixes by default :contentReference[oaicite:2]{index=2}
 
 [lint]
-select = ["F", "E", "I"]
+select = ["F", "E", "I"]   # Enable Pyflakes (F), pycodestyle (E), and import-sorting (I)
+ignore = ["E501"]          # Ignore long-line violations (rendered by line‑length setting) :contentReference[oaicite:3]{index=3}
+
+[format]
+quote-style = "double"     # Use double quotes, similar to Black
+indent-style = "space"     # Use spaces instead of tabs
