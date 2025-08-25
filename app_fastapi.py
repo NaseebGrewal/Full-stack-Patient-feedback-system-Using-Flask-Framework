@@ -250,6 +250,7 @@ async def home(request: Request):
 #     }
 #     return templates.TemplateResponse("bargraph.html", context)
 
+
 @app.get("/bargraphs", response_class=HTMLResponse, name="bargraphs")
 async def bargraphs(request: Request):
     """
@@ -448,6 +449,7 @@ async def bargraphs(request: Request):
 #     }
 #     return templates.TemplateResponse("piechart.html", context)
 
+
 @app.get("/piecharts", response_class=HTMLResponse, name="piecharts")
 async def piecharts(request: Request):
     """
@@ -487,7 +489,7 @@ async def piecharts(request: Request):
         # Ensure the "static" folder exists
         if not os.path.exists("static"):
             os.makedirs("static")
-        
+
         # Save the pie chart image in the static folder
         image_path = f"static/piechart_{col_name}.png"
         plt.savefig(image_path)
